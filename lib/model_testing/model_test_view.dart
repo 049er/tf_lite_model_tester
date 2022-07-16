@@ -2,23 +2,23 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:model_tester_app/test_sceen/camera_view.dart';
-import 'package:model_tester_app/math/round_double.dart';
-import 'package:model_tester_app/test_sceen/painter.dart';
+import 'package:model_tester_app/model_testing/camera_view.dart';
+import 'package:model_tester_app/functions/round_double.dart';
+import 'package:model_tester_app/model_testing/painter.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 // ignore: depend_on_referenced_packages
 import 'package:vector_math/vector_math_64.dart' as vm;
 import 'dart:math' as m;
 
-class TestScreen extends StatefulWidget {
-  const TestScreen({Key? key}) : super(key: key);
+class ModelTestView extends StatefulWidget {
+  const ModelTestView({Key? key}) : super(key: key);
 
   @override
-  State<TestScreen> createState() => _TestScreenState();
+  State<ModelTestView> createState() => _ModelTestViewState();
 }
 
-class _TestScreenState extends State<TestScreen> {
+class _ModelTestViewState extends State<ModelTestView> {
   final BarcodeScanner _barcodeScanner = BarcodeScanner();
   bool _canProcess = true;
   bool _isBusy = false;
@@ -36,31 +36,8 @@ class _TestScreenState extends State<TestScreen> {
 
   @override
   void initState() {
-    accelerometerEvents.listen((AccelerometerEvent event) {
-      accelerometerEvent = vm.Vector3(event.x, event.y, event.z);
-      double dotY = vm.dot3(zeroY, vm.Vector3(0, event.y, 0));
-      double magAccY = accelerometerEvent.length;
-      double magZeroY = zeroY.length;
-
-      angleY = roundDouble(
-          (90 - m.acos((dotY) / (magAccY * magZeroY)) * (180 / m.pi)), 2);
-
-      double dotX = vm.dot3(zeroX, vm.Vector3(event.x, 0, 0));
-      double magAccX = accelerometerEvent.length;
-      double magZeroX = zeroX.length;
-
-      angleX = roundDouble(
-          (90 - m.acos((dotX) / (magAccX * magZeroX)) * (180 / m.pi)), 2);
-    });
     init();
     super.initState();
-  }
-
-  void init() async {
-    //Srub 001 , 0012 , 0005 MORE by that I mean LESS LOWER PERSPECTIVE VALUES.
-    const modelFile = 'angle_p0_0001.tflite';
-    interpreter = await Interpreter.fromAsset(modelFile);
-    log('interpreter loaded');
   }
 
   @override
@@ -100,14 +77,14 @@ class _TestScreenState extends State<TestScreen> {
         final cp = barcode.cornerPoints!;
 
         var input = [
-          (cp[0].x - cp[0].x).toDouble(),
-          (cp[0].y - cp[0].y).toDouble(),
-          (cp[1].x - cp[0].x).toDouble(),
-          (cp[1].y - cp[0].y).toDouble(),
-          (cp[2].x - cp[0].x).toDouble(),
-          (cp[2].y - cp[0].y).toDouble(),
-          (cp[3].x - cp[0].x).toDouble(),
-          (cp[3].y - cp[0].y).toDouble(),
+          (cp[0].x).toDouble(),
+          (cp[0].y).toDouble(),
+          (cp[1].x).toDouble(),
+          (cp[1].y).toDouble(),
+          (cp[2].x).toDouble(),
+          (cp[2].y).toDouble(),
+          (cp[3].x).toDouble(),
+          (cp[3].y).toDouble(),
         ];
 
         log(input.toString());
@@ -138,5 +115,32 @@ class _TestScreenState extends State<TestScreen> {
     if (mounted) {
       setState(() {});
     }
+  }
+
+  //TODO: Implement Isolates
+
+  void init() async {
+    //Load Custom TfLite Model.
+    const modelFile = 'angle_model_spicy.tflite';
+    interpreter = await Interpreter.fromAsset(modelFile);
+    log('interpreter loaded');
+
+    //Initiate Acceletormeter.
+    accelerometerEvents.listen((AccelerometerEvent event) {
+      accelerometerEvent = vm.Vector3(event.x, event.y, event.z);
+      double dotY = vm.dot3(zeroY, vm.Vector3(0, event.y, 0));
+      double magAccY = accelerometerEvent.length;
+      double magZeroY = zeroY.length;
+
+      angleX = roundDouble(
+          (90 - m.acos((dotY) / (magAccY * magZeroY)) * (180 / m.pi)), 2);
+
+      double dotX = vm.dot3(zeroX, vm.Vector3(event.x, 0, 0));
+      double magAccX = accelerometerEvent.length;
+      double magZeroX = zeroX.length;
+
+      angleY = roundDouble(
+          (90 - m.acos((dotX) / (magAccX * magZeroX)) * (180 / m.pi)), 2);
+    });
   }
 }

@@ -1,6 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:model_tester_app/test_sceen/test_screen.dart';
+import 'package:model_tester_app/model_testing/model_test_view.dart';
 import 'package:model_tester_app/widgets/custom_card.dart';
 
 List<CameraDescription> cameras = [];
@@ -57,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
-            CustomCard('Simulator', TestScreen(), Icons.grid_3x3,
+            CustomCard('Simulator', ModelTestView(), Icons.grid_3x3,
                 tileColor: Colors.deepOrange),
           ],
         ),

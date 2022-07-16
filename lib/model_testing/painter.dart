@@ -6,9 +6,9 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
-import 'package:model_tester_app/math/round_double.dart';
+import 'package:model_tester_app/functions/round_double.dart';
 
-import '../math/coordinates_translator.dart';
+import '../functions/coordinates_translator.dart';
 
 class BarcodeDetectorPainter extends CustomPainter {
   BarcodeDetectorPainter(this.barcodes, this.absoluteImageSize, this.rotation,
@@ -55,13 +55,13 @@ class BarcodeDetectorPainter extends CustomPainter {
       final ParagraphBuilder builder = ParagraphBuilder(
         ParagraphStyle(
             textAlign: TextAlign.left,
-            fontSize: 12,
+            fontSize: 15,
             textDirection: TextDirection.ltr),
       );
       builder.pushStyle(
           ui.TextStyle(color: Colors.lightGreenAccent, background: background));
       builder.addText(
-          '${barcode.displayValue}\nX: ${angles[x][0][0]}\nY: ${angles[x][0][1]}\nZ: ${angles[x][0][2]}}');
+          'X: ${roundDouble(angles[x][0][0], 2)}\nY: ${roundDouble(angles[x][0][1], 2)}\nZ: ${roundDouble(angles[x][0][2], 2)}}');
       builder.pop();
       x++;
 
@@ -113,7 +113,7 @@ class BarcodeDetectorPainter extends CustomPainter {
       canvas.drawParagraph(
         builder.build()
           ..layout(ParagraphConstraints(
-            width: right - left,
+            width: right - left + 200,
           )),
         Offset(left, top),
       );
